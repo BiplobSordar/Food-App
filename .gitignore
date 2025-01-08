@@ -1,0 +1,60 @@
+# General node_modules
+node_modules
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Debugging files
+*.tsbuildinfo
+
+# Editor files
+.idea/
+.vscode/
+*.swp
+*~
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Linux
+.Trash-*
+
+# Coverage directories
+coverage
+
+# Build output
+dist/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Client-specific (React)
+client/node_modules
+client/build/
+client/.env
+client/.env.*
+client/.next/
+client/out/
+client/coverage
+
+# Server-specific (Node.js)
+server/node_modules
+server/build/
+server/.env
+server/coverage
