@@ -26,7 +26,7 @@ const HeroSection = () => {
             value={searchText}
           />
           <button className="bg-orange text-white px-4 py-2 rounded-lg hover:bg-hoverOrange"
-          onClick={()=>{navigate(`/search/${searchText}`)}}
+          onClick={()=>{searchText.length>0?navigate(`/search/${searchText}`): '' }}
           >
             Search
           </button>

@@ -1,66 +1,47 @@
 import { ShoppingCart, CreditCard } from 'lucide-react';
+import { useCartStore } from '../store/useCartStore';
+import { CheckCircle } from 'lucide-react';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 export type MenuItem = {
   id: number; // Unique identifier for each menu item
   name: string; // Name of the menu item
   description: string; // Description of the menu item
   price: number; // Price of the menu item
-  image: string; // URL of the image for the menu item
+  image_url: string; // URL of the image for the menu item
 };
 
 
 
-const MenuCard = ({ menu, addToCart }: { menu: MenuItem; addToCart: (menu: MenuItem) => void }) => {
+const MenuCard = ({ menu }: { menu: any }) => {
+
+  const { addToCart, cart } = useCartStore()
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const isItemInCart = (cartItems: any, itemId: any) => {
+    return cartItems.some((item: any) => item.id === itemId);
+
+  };
+  const isAdminPath = (pathname: string) => {
+    return pathname.includes('/admin');
+  };
+  const buy = (menu: any) => {
+
+    Navigate({ to: `/checkout/${menu.id}`, replace: true })
+
+  }
+  // Use the isAdminPath function
+  const isAdmin = isAdminPath(location.pathname);
   return (
-    //   <div className="max-w-xs mx-auto shadow-lg rounded-lg overflow-hidden border border-gray-200">
-    //     <img src={menu.image} alt={menu.name} className="w-full h-40 object-cover" />
-    //     <div className="p-4">
-    //       <h2 className="text-xl font-semibold text-gray-800">{menu.name}</h2>
-    //       <p className="text-sm text-gray-600 mt-2">{menu.description}</p>
-    //       <h3 className="text-lg font-semibold mt-4">
-    //         Price: <span className="text-[#D19254]">₹{menu.price}</span>
-    //       </h3>
-    //     </div>
-    //     <div className="p-4">
-    //       <button
-    //         onClick={() => addToCart(menu)}
-    //         className="w-full bg-orange-500 text-white font-semibold py-2 rounded hover:bg-orange-600"
-    //       >
-    //         Add to Cart
-    //       </button>
-    //     </div>
-    //   </div>
-
-    //     <div className="max-w-xs mx-auto shadow-lg rounded-lg overflow-hidden border border-gray-200 transform hover:scale-105 hover:shadow-2xl transition-all duration-300">
-    //   {/* Image Section */}
-    //   <img src={menu.image} alt={menu.name} className="w-full h-40 object-cover" />
-
-    //   {/* Content Section */}
-    //   <div className="p-4">
-    //     <h2 className="text-xl font-semibold text-gray-800">{menu.name}</h2>
-    //     <p className="text-sm text-gray-600 mt-2">{menu.description}</p>
-    //     <h3 className="text-lg font-semibold mt-4">
-    //       Price: <span className="text-[#D19254]">₹{menu.price}</span>
-    //     </h3>
-    //   </div>
-
-    //   {/* Button Section */}
-    //   <div className="p-4">
-    //     <button
-    //       onClick={() => addToCart(menu)}
-    //       className="w-full bg-orange-500 text-white font-semibold py-2 rounded shadow hover:bg-orange-600 hover:shadow-lg transition-all duration-300"
-    //     >
-    //       Add to Cart
-    //     </button>
-    //   </div>
-    // </div>
 
 
 
 
-    <div className="max-w-xs mx-auto shadow-lg rounded-lg overflow-hidden border border-gray-200 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl">
-      <img src={menu.image} alt={menu.name} className="w-full h-40 object-cover" />
-      <div className="p-4">
+
+    <div className="w-[100%] mx-auto shadow-lg rounded-lg overflow-hidden border border-gray-200 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl p-2">
+      <img src={menu.image_url} alt={menu.name} className="w-[100%] h-40 object-cover" />
+      <div className="p-4 w-full">
         <h2 className="text-xl font-semibold text-gray-800">{menu.name}</h2>
         <p className="text-sm text-gray-600 mt-2">{menu.description}</p>
         <h3 className="text-lg font-semibold mt-4">
@@ -68,18 +49,33 @@ const MenuCard = ({ menu, addToCart }: { menu: MenuItem; addToCart: (menu: MenuI
         </h3>
       </div>
       <div className="p-4 flex justify-between gap-2 items-center">
-        <ShoppingCart className='text-orange cursor-pointer' size={28} />
-        
-
-        
-
-        <button
+        {isAdmin ? <button
           //   onClick={() => buyNow(menu)}
           className="w-1/2 bg-green-500 text-white font-semibold py-2 rounded hover:bg-green-600 flex justify-center items-center space-x-2"
         >
           <CreditCard size={24} />
-          <span>Buy Now</span>
-        </button>
+          <span>Edit Menu</span>
+        </button> : <> {
+          !isItemInCart(cart, menu.id) ? <ShoppingCart className='text-orange cursor-pointer' size={28} onClick={() => { addToCart(menu) }} /> : <CheckCircle className="text-orange" size={28} />
+
+        }</>}
+
+
+
+
+
+        {!isAdmin && <button
+          //   onClick={() => buyNow(menu)}
+          className="w-1/2 bg-green-500 text-white font-semibold py-2 rounded hover:bg-green-600 flex justify-center items-center space-x-2"
+        >
+          <CreditCard size={24} />
+          <span onClick={() => {
+            addToCart(menu)
+            navigate(`/checkout/${menu.id}`)
+
+          }}>Buy Now</span>
+        </button>}
+
       </div>
     </div>
 

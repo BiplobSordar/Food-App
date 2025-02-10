@@ -1,8 +1,15 @@
 import { ChevronDown, CheckCircle } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+import { useOrderStore } from "../../store/useOrderStore";
+import Loading from "../../components/Loading";
 
 export default function Orders() {
   const [dropdownOpen, setDropdownOpen] = useState(null);
+const {getRestaurantOrders,admin_orders,loading}=useOrderStore()
+  useEffect(()=>{
+  getRestaurantOrders()
+  },[])
 
   const toggleDropdown = (orderId:any) => {
     setDropdownOpen((prev) => (prev === orderId ? null : orderId));
@@ -10,35 +17,8 @@ export default function Orders() {
 
   const statuses = ["Pending", "Confirmed", "Preparing", "OutForDelivery", "Delivered"];
 
-  const restaurantOrder = [
-    {
-      _id: "1",
-      deliveryDetails: {
-        name: "John Doe",
-        address: "123 Main Street, Springfield",
-      },
-      totalAmount: 2500,
-      status: "pending",
-    },
-    {
-      _id: "2",
-      deliveryDetails: {
-        name: "Jane Smith",
-        address: "456 Elm Street, Shelbyville",
-      },
-      totalAmount: 4000,
-      status: "confirmed",
-    },
-    {
-      _id: "3",
-      deliveryDetails: {
-        name: "Alice Johnson",
-        address: "789 Oak Street, Capital City",
-      },
-      totalAmount: 3200,
-      status: "preparing",
-    },
-  ];
+
+  if(loading)return <Loading/>
 
   return (
     <div className="max-w-6xl mx-auto py-10 px-6">
@@ -46,22 +26,22 @@ export default function Orders() {
         Orders Overview
       </h1>
       <div className="space-y-8">
-        {restaurantOrder.map((order) => (
+        {admin_orders?.map((order:any) => (
           <div
-            key={order._id}
+            key={order.id}
             className="flex flex-col md:flex-row justify-between items-start sm:items-center bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700"
           >
             <div className="flex-1 mb-6 sm:mb-0">
               <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-                {order.deliveryDetails.name}
+                {order.name}
               </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-2">
                 <span className="font-semibold">Address: </span>
-                {order.deliveryDetails.address}
+                {order.address}
               </p>
               <p className="text-gray-600 dark:text-gray-400 mt-2">
                 <span className="font-semibold">Total Amount: </span>
-                {order.totalAmount / 100}
+                {order.price}
               </p>
             </div>
             <div className="w-full sm:w-1/3 relative">
@@ -69,13 +49,13 @@ export default function Orders() {
                 Order Status
               </label>
               <button
-                onClick={() => toggleDropdown(order._id)}
+                onClick={() => toggleDropdown(order.id)}
                 className="flex justify-between items-center w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-gray-700 dark:text-gray-300"
               >
                 {statuses.find((status) => status.toLowerCase() === order.status)}
                 <ChevronDown className="ml-2 h-4 w-4" />
               </button>
-              {dropdownOpen === order._id && (
+              {dropdownOpen === order.id && (
                 <ul className="absolute z-10 mt-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-md w-full">
                   {statuses.map((status, index) => (
                     <li

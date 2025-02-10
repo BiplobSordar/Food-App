@@ -1,10 +1,14 @@
 import AvailableMenu from "../components/AvailableMenu";
-import imageUrl from '../assets/images/resturent.jpg'
+import imageUrl from '../assets/images/CaesarSalad.jpg'
 import pizza from  "../assets/images/MargheritaPizza.jpg"
 import cb from "../assets/images/ChickenBiryani.jpg"
 import cs from "../assets/images/CaesarSalad.jpg"
 import pa from "../assets/images/PastaAlfredo.jpg"
 import tp from "../assets/images/andooriPaneer.jpg"
+import { useRestaurantStore } from "../store/useRestaurantStore";
+import Loading from "../components/Loading";
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 const singleRestaurant = {
     imageUrl:imageUrl, // Placeholder image
@@ -55,13 +59,23 @@ const singleRestaurant = {
   
 
 const ResturentDetails = () => {
+  const {loading,singleRestaurant,getSingleRestaurant}=useRestaurantStore()
+  const params=useParams()
+  const id=params.id
+  useEffect(()=>{
+    getSingleRestaurant(id)
+  },[])
+  if(loading)return <Loading/>
+  console.log(singleRestaurant,'thsi is the single restaursnas')
+
+
   return (
     <div className="max-w-6xl mx-auto my-10">
     <div className="w-full">
       {/* Restaurant Image */}
       <div className="relative w-full h-32 md:h-64 lg:h-72">
         <img
-          src={singleRestaurant?.imageUrl || "Loading..."}
+          src={singleRestaurant?.image_url || "Loading..."}
           alt="res_image"
           className="object-cover w-full h-full rounded-lg shadow-lg"
         />
@@ -71,7 +85,7 @@ const ResturentDetails = () => {
       <div className="flex flex-col md:flex-row justify-between">
         <div className="my-5">
           {/* Restaurant Name */}
-          <h1 className="font-medium text-xl">{singleRestaurant?.restaurantName || "Loading..."}</h1>
+          <h1 className="font-medium text-xl">{singleRestaurant?.name }</h1>
           
           {/* Cuisines */}
           <div className="flex gap-2 my-2">
@@ -105,7 +119,7 @@ const ResturentDetails = () => {
               <h1 className="flex items-center gap-2 font-medium">
                 Delivery Time:{" "}
                 <span className="text-[#D19254]">
-                  {singleRestaurant?.deliveryTime || "NA"} mins
+                  {singleRestaurant?.delivery_time || "NA"} mins
                 </span>
               </h1>
             </div>

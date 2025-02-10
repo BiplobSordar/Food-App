@@ -18,95 +18,134 @@ import AddResturent from './pages/admin/AddResturent'
 import AddMenuToResturent from './pages/admin/AddMenuToResturent'
 import Orders from './pages/admin/Orders'
 import Success from './pages/Success'
+import { ToastProvider } from './context/ToastContext'
+import { AdminRoute, AuthenticatedUser, ProtectedRoute } from './components/ProtectedRoute'
+import { useUserStore } from './store/useUserStore'
+import { useEffect } from 'react'
+import Loading from './components/Loading'
+import MyRestaurant from './pages/admin/MyRestaurantDetails'
+import Checkout from './pages/user/CheckoutPage'
 
-function App() {
 
-  const appRoute = createBrowserRouter([
-    {path:'/',
-      element:<MainLayout/>,
-      children:[
-        {
-          path:'*',
-          element:<NotFound/>
-        },
-        {
-          path:'/',
-          element:<>
-          <HeroSection/>
-          <AvailableResturent/>
-          </>
-        },
-        {path:'/login',
-          element:<Login/>
-         
-        },
-        {
-          path:'/signup',
-          element:<Signup/>
-        },
-        {
-          path:'/forgot-password',
-          element:<ForgetPassword/>
-        },
-        {
-          path:'/reset-password',
-          element:<ResetPassword/>
-        },
-        {
-          path:'/verify-email',
-          element:<VerifyEmail/>
-        },
-        {
-          path:'/profile',
-          element:<Profile/>
-        },
-        {
-          path:'/search/:searchText',
-          element:<SearchPage/>
-        },
-        {
-          path:'/resturent/:id',
-          element:<ResturentDetails/>
-        },
-        {
-          path:'/cart',
-          element:<Cart/>
+const appRoute = createBrowserRouter([
+  {
+    path: '/',
+    element: <MainLayout />,
+    children: [
+      {
+        path: '*',
+        element: <NotFound />
+      },
+      {
+        path: '/',
+        element: <>
+          <HeroSection />
+          <AvailableResturent />
+        </>
+      },
+      {
+        path: '/login',
 
-        },
-        {
-          path:'/order',
-          element:<Success/>
-        },
+        element: <AuthenticatedUser><Login /></AuthenticatedUser>
+
+      },
+      {
+        path: '/signup',
+        element: <AuthenticatedUser><Signup /></AuthenticatedUser>
+      },
+      {
+        path: '/forgot-password',
+        element: <ForgetPassword />
+      },
+      {
+        path: '/reset-password/:token',
+        element: <ResetPassword />
+      },
+      {
+        path: '/verify-email',
+        element: <VerifyEmail />
+      },
+      {
+        path: '/profile',
+        element: <ProtectedRoute><Profile /></ProtectedRoute>
+      },
+      {
+        path: '/search/:searchText',
+        element: <SearchPage />
+      },
+      {
+        path: '/resturent/:id',
+        element: <ResturentDetails />
+      },
+      {
+        path: '/cart',
+        element: <Cart />
+
+      },
+      {
+        path: '/order',
+        element: <ProtectedRoute><Success /></ProtectedRoute>
+      },
+      {
+        path: '/checkout/:id',
+        element: <ProtectedRoute><Checkout/></ProtectedRoute>
+      },
 
       //  admin routes start here 
       {
-        path:'/admin/add-resturent',
-        element:<AddResturent/>
+        path: '/admin/add-resturent',
+        element: <AdminRoute><AddResturent /></AdminRoute>
       },
       {
-        path:'/admin/menu',
-        element:<AddMenuToResturent/>
+        path: '/admin/restaurant',
+        element: <AdminRoute><MyRestaurant /></AdminRoute>
       },
       {
-        path:'/admin/orders',
-        element:<Orders/>
+        path: '/admin/menu',
+        element: <AdminRoute><AddMenuToResturent /></AdminRoute>
+      },
+      {
+        path: '/admin/orders',
+        element: <AdminRoute> <Orders /></AdminRoute>
       }
 
 
 
 
-      ]
-    }
+    ]
+  }
 
 
-  ])
+])
+function App() {
 
 
+
+  const { checkAuthentication, isCheckingAuth ,isAuthenticated,user} = useUserStore()
+  useEffect(() => {
+    checkAuthentication()
+   
+   
+  }, [checkAuthentication])
+
+  if(!isAuthenticated && user){
+    localStorage.clear();
+ 
+    location.reload(); 
+  }
+
+
+  if (isCheckingAuth) return <Loading />
   return (
-    <main>
-      <RouterProvider router={appRoute}>
 
-      </RouterProvider>
+
+    <main>
+      <ToastProvider>
+
+        <RouterProvider router={appRoute} />
+      </ToastProvider>
+
+
     </main>
 
   )

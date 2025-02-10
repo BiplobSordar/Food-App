@@ -2,22 +2,27 @@ import { Loader2 } from "lucide-react"
 import React, { useState } from "react"
 import { addResturentFormType, addResturentFromSchema } from "../../schema/addResturentSchma"
 import { string } from "zod"
+import { useRestaurantStore } from "../../store/useRestaurantStore"
+import { useToast } from "../../context/ToastContext"
+import { Navigate } from "react-router-dom"
 
 
 
 
 
 const AddResturent = () => {
-  let loading = false
+  const { addToast } = useToast()
+
   let restaurant = false
+  const { loading, createRestaurant } = useRestaurantStore()
 
   const [input, setInput] = useState<addResturentFormType>({
-    resturentName: '',
+    name: '',
     city: '',
     country: '',
     cuisines: [],
     deliveryTime: 0,
-    imageFile: undefined
+    // imageFile: undefined
   })
 
 
@@ -29,7 +34,7 @@ const AddResturent = () => {
   }
 
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     const result = addResturentFromSchema.safeParse(input)
@@ -42,10 +47,15 @@ const AddResturent = () => {
     }
     if (result.success) {
       setErrors({})
+      console.log('this i sthe input at createRestaurant',input)
+      const id = await createRestaurant(input, addToast)
+      if (id) {
+        Navigate({ to: `/admin/restaurant/${id}`,replace:true })
+      }
     }
 
   }
-  console.log(errors, 'thsi is the error after form submitson')
+  
   return (
     <div className="max-w-6xl mx-auto my-10 p-6 bg-gray-100 rounded-lg shadow-lg">
       <div>
@@ -60,14 +70,14 @@ const AddResturent = () => {
                 </label>
                 <input
                   type="text"
-                  name="resturentName"
+                  name="name"
                   onChange={handleChange}
-                  value={input.resturentName}
+                  value={input.name}
 
                   placeholder="Enter your restaurant name"
                   className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring focus:ring-orange focus:outline-none focus:border-orange-500 shadow-sm"
                 />
-                {errors && (<span className="text-xs text-red-600 font-medium">{errors.resturentName}</span>)}
+                {errors && (<span className="text-xs text-red-600 font-medium">{errors.name}</span>)}
               </div>
 
               {/* City */}
@@ -141,7 +151,7 @@ const AddResturent = () => {
               </div>
 
               {/* Upload Restaurant Banner */}
-              <div>
+              {/* <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Upload Restaurant Banner
                 </label>
@@ -159,16 +169,29 @@ const AddResturent = () => {
                   className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring focus:ring-orange focus:outline-none focus:border-orange-500 shadow-sm"
                 />
                 {errors && (<span className="text-xs text-red-600 font-medium">{errors.imageFile?.name || 'Image File Is Required'}</span>)}
-              </div>
+              </div> */}
             </div>
 
             <div className="mt-8 flex justify-center">
-              <button
-                type="submit"
-                className="bg-orange text-white font-semibold px-6 py-3 rounded-lg hover:bg-hoverOrange focus:outline-none focus:ring-4 focus:ring-orange transition ease-in-out duration-300 shadow-lg"
-              >
-                Add Your Restaurant
-              </button>
+              {loading ? (
+                <button
+                disabled
+                  className="w-full bg-orange text-white py-2 px-4 rounded-lg hover:bg-hoverOrange flex items-center justify-center"
+                >
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+
+                  Please wait
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  className="w-full  bg-orange text-white py-2 px-4 rounded-lg hover:bg-hoverOrange"
+                >
+                  Create Restaurant
+                </button>
+
+              )}
+             
             </div>
           </form>
         </div>

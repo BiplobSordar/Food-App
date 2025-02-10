@@ -1,56 +1,29 @@
 import { Loader2, Plus, X } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MenuFormSchema, menuSchema } from "../../schema/addMenuSchema";
 import { number } from "zod";
 import { MenuItem } from "../../components/MenuCard";
 import EditMunu from "./EditMenu";
 import EditMenu from "./EditMenu";
+import { useMenuStore } from "../../store/useMenuStroe";
+import { useToast } from "../../context/ToastContext";
+import { useRestaurantStore } from "../../store/useRestaurantStore";
 
-const restaurant = {
-    menus: [
-        {
-            name: "Classic Burger",
-            description: "A juicy beef patty with lettuce, tomato, and cheese in a toasted bun.",
-            price: 350,
-            image: "https://via.placeholder.com/150", // Replace with a real image URL
-        },
-        {
-            name: "Margherita Pizza",
-            description: "Fresh mozzarella, basil, and tomato sauce on a thin crust.",
-            price: 500,
-            image: "https://via.placeholder.com/150",
-        },
-        {
-            name: "Caesar Salad",
-            description: "Crisp romaine lettuce, parmesan cheese, croutons, and Caesar dressing.",
-            price: 250,
-            image: "https://via.placeholder.com/150",
-        },
-        {
-            name: "Spaghetti Carbonara",
-            description: "Spaghetti pasta in a creamy sauce with pancetta and parmesan.",
-            price: 450,
-            image: "https://via.placeholder.com/150",
-        },
-        {
-            name: "Chocolate Lava Cake",
-            description: "A warm molten chocolate cake served with vanilla ice cream.",
-            price: 300,
-            image: "https://via.placeholder.com/150",
-        },
-    ],
-};
+
 
 
 const AddMenuToResturent = () => {
+    const { createMenu, loading } = useMenuStore()
+    const { getRestaurant ,restaurant} = useRestaurantStore()
+    const { addToast } = useToast()
     const [open, setOpen] = useState<boolean>(false)
     const [editOpen, setEditOpen] = useState<boolean>(false)
-    const [selectedMenu, setSelectedMenu] = useState<MenuItem>({
+    const [selectedMenu, setSelectedMenu] = useState<any>({
         id: 0, name: '', description: '', price: 0, image: 'undefined'
     })
     const [error, setError] = useState<Partial<MenuFormSchema>>({})
 
-    let loading = false
+
     const [input, setInput] = useState<MenuFormSchema>({
         name: "",
         description: "",
@@ -64,13 +37,14 @@ const AddMenuToResturent = () => {
 
 
 
-    const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+    const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-
+        console.log(input,'thsi is the input inside sumbit')
         // form validation start Here 
         const result = menuSchema.safeParse(input)
         if (!result.success) {
             const fieldErrors = result.error.formErrors.fieldErrors
+            console.log(fieldErrors)
             setError(fieldErrors as Partial<MenuFormSchema>)
             return
         }
@@ -80,18 +54,44 @@ const AddMenuToResturent = () => {
 
 
         // api implementation start here
+
+        try {
+            const formData = new FormData()
+
+            formData.append('name', input.name)
+            formData.append('description', input.description)
+            formData.append('price', input.price.toString())
+            if (input.image) {
+                formData.append('image', input.image)
+            }
+            console.log(formData,'thsi i sthe form data')
+            const result = await createMenu(formData, addToast)
+            console.log(result,'thsi is the api call result')
+            if (result) {
+                await getRestaurant()
+                setOpen(!open)
+
+            }
+        } catch (error) {
+            console.log(error)
+        }
+       
     }
     const changeEventHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type } = e.target
         setInput({ ...input, [name]: type == 'number' ? Number(value) : value })
     }
 
+
+    useEffect(()=>{
+        getRestaurant()
+    },[])
     return (
         <div className="max-w-6xl mx-auto my-10">
             <div className="flex justify-between items-center">
                 <h1 className="font-bold md:font-extrabold text-lg md:text-2xl">Available Menus</h1>
                 <button
-                    onClick={() => setOpen(true)}
+                    onClick={() => setOpen(!open)}
                     className="flex items-center bg-orange text-white px-4 py-2 rounded-lg hover:bg-hoverOrange focus:ring-4 focus:ring-orange-300 transition ease-in-out"
                 >
                     <Plus className="mr-2" /> Add Menus
@@ -100,7 +100,7 @@ const AddMenuToResturent = () => {
             </div>
 
             {open && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => { setOpen(false) }}>
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => { setOpen(!open) }}>
                     <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg" onClick={(e) => e.stopPropagation()}>
                         <h2 className="text-lg font-bold mb-2">Add A New Menu</h2>
                         <p className="text-sm text-gray-600 mb-4">Create a menu that will make your restaurant stand out.</p>
@@ -139,7 +139,7 @@ const AddMenuToResturent = () => {
                                     id="price"
                                     type="number"
                                     name="price"
-                                    value={input.price}
+                                    value={input.price === 0 ? '' : input.price}
                                     onChange={changeEventHandler}
                                     placeholder="Enter menu price"
                                     className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring focus:ring-orange-500 focus:outline-none focus:border-orange-500"
@@ -166,7 +166,7 @@ const AddMenuToResturent = () => {
                                 {loading ? (
                                     <button
                                         disabled
-                                        className="bg-orange-500 text-white px-4 py-2 rounded-lg flex items-center justify-center cursor-not-allowed"
+                                        className="bg-orange text-white px-4 py-2 rounded-lg flex items-center justify-center cursor-not-allowed"
                                     >
                                         <Loader2 className="mr-2 w-4 h-4 animate-spin" /> Please wait
 
@@ -196,7 +196,7 @@ const AddMenuToResturent = () => {
                 <div key={idx} className="mt-6 space-y-4">
                     <div className="flex flex-col md:flex-row md:items-center md:space-x-4 md:p-4 p-2 shadow-md rounded-lg border">
                         <img
-                            src={menu.image}
+                            src={menu.image_url}
                             alt="Menu item"
                             className="md:h-24 md:w-24 h-16 w-full object-cover rounded-lg"
                         />

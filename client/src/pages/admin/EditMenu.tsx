@@ -1,20 +1,36 @@
-import React, { ChangeEvent, Dispatch, SetStateAction, useState } from 'react';
+import React, { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { menuSchema, MenuFormSchema } from '../../schema/addMenuSchema'
 import { MenuItem } from '../../components/MenuCard';
 import { Loader2 } from 'lucide-react';
+import { any, string } from 'zod';
+import { useMenuStore } from '../../store/useMenuStroe';
+import { useToast } from '../../context/ToastContext';
+import { useRestaurantStore } from '../../store/useRestaurantStore';
 
 
+type editMenuFormType = {
+    name: string,
+    description: string,
+    price: number,
+    image: any
+}
+const EditMenu = ({ editOpen, setEditOpen, selectedMenu }: { selectedMenu: any, editOpen: boolean, setEditOpen: Dispatch<SetStateAction<boolean>> }) => {
+   
+    const { loading, editMenu } = useMenuStore()
+    const { getRestaurant } = useRestaurantStore()
+    const { addToast } = useToast()
 
-const EditMenu = ({ editOpen, setEditOpen, selectedMenu }: { selectedMenu: MenuItem, editOpen: boolean, setEditOpen: Dispatch<SetStateAction<boolean>> }) => {
-
-    const [input, setInput] = useState<MenuFormSchema>({
+    const [input, setInput] = useState<editMenuFormType>({
         name: "",
         description: "",
         price: 0,
         image: undefined,
     });
+    useEffect(() => {
+        setInput(selectedMenu)
+    }, [])
     const [error, setError] = useState<Partial<MenuFormSchema>>({});
-    const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+    const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
         // form validation start here 
@@ -30,20 +46,48 @@ const EditMenu = ({ editOpen, setEditOpen, selectedMenu }: { selectedMenu: MenuI
         }
 
         // api Implementation start here 
+
+
+        try {
+            const formData = new FormData()
+            formData.append('name', input.name)
+            formData.append('description', input.description)
+            formData.append('price', input.price.toString())
+            if (input.image) {
+
+                formData.append('image', input.image)
+            }
+            const result = await editMenu(selectedMenu.id, formData, addToast)
+            if (result) {
+                await getRestaurant()
+                setEditOpen(!editOpen)
+            }
+        } catch (error) {
+            console.log(error)
+        }
     }
     const changeEventHandler = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value, type } = e.target
 
         setInput({ ...input, [name]: type == 'number' ? Number(value) : value })
     }
-    let loading = false
 
+    useEffect(() => {
+        setInput({
+            name: selectedMenu?.name || "",
+            description: selectedMenu?.description || "",
+            price: selectedMenu?.price || 0,
+            image: undefined,
+        })
+    }, [])
+
+   
     return (
         <div
             className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity ${editOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
                 }`}
         >
-            <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6" onClick={(e)=>e.stopPropagation()}>
+            <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold">Edit Menu</h2>
                     <button
@@ -144,7 +188,7 @@ const EditMenu = ({ editOpen, setEditOpen, selectedMenu }: { selectedMenu: MenuI
                         {loading ? (
                             <button
                                 disabled
-                                className="flex items-center justify-center w-full px-4 py-2 text-white bg-orange-500 rounded-md shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                                className="flex items-center justify-center w-full px-4 py-2 text-white bg-orange rounded-md shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
                             >
                                 <Loader2 className="mr-2 w-4 h-4 animate-spin" /> Please wait
 
