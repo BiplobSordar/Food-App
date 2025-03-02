@@ -10,6 +10,8 @@ import EditRestaurantDetailsForm from './EditRestaurantDetailsForm'
 import { useNavigate } from 'react-router-dom'
 import { Loader2, Plus } from 'lucide-react'
 
+import AddResturent from './AddResturent'
+
 
 
 
@@ -63,6 +65,7 @@ const MyRestaurant = () => {
     deliveryTime: Number(restaurant?.delivery_time),
     cuisines: restaurant?.cuisines
   }
+  if(!restaurant) return <AddResturent/>
 
   return (
     <>

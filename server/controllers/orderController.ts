@@ -32,11 +32,11 @@ export const createCheckoutSession = async (req: Request, res: Response): Promis
 
 
 
-
+ 
   // 2. Create main order
   const main_order: any = await query(
-    `INSERT INTO orders (user_id, total_amount, status,city,country,address) VALUES ($1, $2, $3,$4,$5,$6) RETURNING *`,
-    [user_id, total_amount, 'pending', input.city, input.country, input.address]
+    `INSERT INTO orders (user_id, total_amount, status,city,country,address_line_1,postal_code) VALUES ($1, $2, $3,$4,$5,$6,$7) RETURNING *`,
+    [user_id, total_amount, 'pending', input.city, input.country, input.address,input.postal_code]
   );
 
 
@@ -299,18 +299,18 @@ export const getRestaurantOrders = async (req: Request, res: Response): Promise<
   WHERE owner = $1
 ),
 sub_orders AS (
-  SELECT so.id AS sub_order_id, o.address, o.status
+  SELECT so.id AS sub_order_id, o.address_line_1, o.status
   FROM sub_order so
   JOIN restaurant r ON so.restaurant_id = r.id
   JOIN "orders" o ON so.order_id = o.id -- Join with the order table to get the address and status
   WHERE so.status <> 'delivered'
 ),
 order_items AS (
-  SELECT oi.menu_id, so.address, so.status
+  SELECT oi.menu_id, so.address_line_1, so.status
   FROM order_item oi
   JOIN sub_orders so ON oi.sub_order_id = so.sub_order_id
 )
-SELECT m.*, oi.address, oi.status
+SELECT m.*, oi.address_line_1, oi.status
 FROM menus m
 JOIN order_items oi ON m.id = oi.menu_id;
     `;

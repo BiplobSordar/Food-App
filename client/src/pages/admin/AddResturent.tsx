@@ -4,7 +4,8 @@ import { addResturentFormType, addResturentFromSchema } from "../../schema/addRe
 import { string } from "zod"
 import { useRestaurantStore } from "../../store/useRestaurantStore"
 import { useToast } from "../../context/ToastContext"
-import { Navigate } from "react-router-dom"
+import { Navigate, useNavigate } from "react-router-dom"
+import { useUserStore } from "../../store/useUserStore"
 
 
 
@@ -12,9 +13,11 @@ import { Navigate } from "react-router-dom"
 
 const AddResturent = () => {
   const { addToast } = useToast()
+  const navigate=useNavigate()
 
   let restaurant = false
   const { loading, createRestaurant } = useRestaurantStore()
+  const {checkAuthentication}=useUserStore()
 
   const [input, setInput] = useState<addResturentFormType>({
     name: '',
@@ -49,8 +52,12 @@ const AddResturent = () => {
       setErrors({})
       console.log('this i sthe input at createRestaurant',input)
       const id = await createRestaurant(input, addToast)
+      console.log(id,'this is the restaurant id')
       if (id) {
-        Navigate({ to: `/admin/restaurant/${id}`,replace:true })
+        checkAuthentication()
+        
+        navigate(`/admin/restaurant`)
+    
       }
     }
 

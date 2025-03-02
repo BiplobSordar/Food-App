@@ -27,7 +27,7 @@ export const useRestaurantStore = create<any>()(persist((set, get) => ({
                 addToast(response.data.message, 'success')
             
             }
-            return response.data.id
+            return response.data.restaurantId
         } catch (error: any) {
             set({ loading: false });
             addToast(error.response?.data?.message || 'An unexpected error occurred', 'error');

@@ -62,8 +62,8 @@ const Navbar = () => {
 
 
 
-        <Avatar imageUrl={user?.avatar||image} altText={'User Image'} />
-       
+        <Avatar imageUrl={user?.avatar || image} altText={'User Image'} />
+
         <div className="relative">
           {/* Cart Icon */}
           <ShoppingCart
@@ -103,72 +103,86 @@ const Navbar = () => {
 
       {/* Mobile Menu Icon */}
       <div className="md:hidden">
-      <div className="flex gap-5">
-            <div className="relative">
-              {/* Cart Icon */}
-              <ShoppingCart
-                onClick={() => {
-                  navigate('/cart');
-                }}
-                className="cursor-pointer hover:text-orange"
-              />
+        <div className="flex gap-5">
+          <div className="relative">
+            {/* Cart Icon */}
+            <ShoppingCart
+              onClick={() => {
+                navigate('/cart');
+              }}
+              className="cursor-pointer hover:text-orange"
+            />
 
-              {/* Cart Item Count */}
-              <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center  justify-center">
-                {cart.length}
-              </div>
+            {/* Cart Item Count */}
+            <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center  justify-center">
+              {cart.length}
             </div>
-            <Menu
+          </div>
+          <Menu
+            className="text-2xl cursor-pointer hover:text-orange"
+            onClick={toggleMobileMenu}
+          />
+        </div>
+      </div>
+
+      {/* Mobile Dropdown Menu */}
+
+      <ul
+        className={`z-20 pt-5 fixed top-0 left-0 transform ease-in-out duration-500 w-full h-screen bg-darkBlue text-start md:hidden flex flex-col justify-between
+    ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+  `}
+      >
+
+        <div className="pl-10 text-left relative ">
+          <div className="flex justify-end mr-5 mt-5">
+            <X
               className="text-2xl cursor-pointer hover:text-orange"
               onClick={toggleMobileMenu}
             />
           </div>
-      </div>
+          <li className="mb-2">
+            <Avatar imageUrl={user?.avatar || image} altText={'User Image'} size={20} />
+          </li>
+          <Link to={'/'}><li onClick={toggleMobileMenu} className="cursor-pointer hover:text-orange py-2 text-lg font-bold">Home</li></Link>
+          <Link to={'/profile'}><li onClick={toggleMobileMenu} className="cursor-pointer hover:text-orange py-2 text-lg font-bold">Profile</li></Link>
+          <Link to={'/order'}><li onClick={toggleMobileMenu} className="cursor-pointer hover:text-orange py-2 text-lg font-bold">Order</li></Link>
 
-      {/* Mobile Dropdown Menu */}
-     
-      <ul
-  className={`z-20 pt-5 fixed top-0 left-0 transform ease-in-out duration-500 w-full h-screen bg-darkBlue text-start md:hidden flex flex-col justify-between
-    ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
-  `}
->
-  
-  <div className="pl-10 text-left relative ">
-  <div className="flex justify-end mr-5 mt-5">
-  <X
-            className="text-2xl cursor-pointer hover:text-orange"
-            onClick={toggleMobileMenu}
-          />
-  </div>
-    <li className="mb-2">
-      <Avatar imageUrl={user?.avatar||image} altText={'User Image'} size={20} />
-    </li>
-    <Link to={'/'}><li   onClick={toggleMobileMenu}  className="cursor-pointer hover:text-orange py-2 text-lg font-bold">Home</li></Link>
-    <Link to={'/profile'}><li   onClick={toggleMobileMenu}  className="cursor-pointer hover:text-orange py-2 text-lg font-bold">Profile</li></Link>
-    <Link to={'/order'}><li   onClick={toggleMobileMenu}  className="cursor-pointer hover:text-orange py-2 text-lg font-bold">Order</li></Link>
+          {user && user.seller && <>
+            {user.restaurant_id ? (
+              <Link to="/admin/restaurant">
+                <li onClick={toggleMobileMenu} className="cursor-pointer hover:text-orange py-2 text-lg font-bold">Restaurant</li>
+              </Link>
+            ) : (
+              <Link to="/admin/add-resturent">
+                <li onClick={toggleMobileMenu} className="cursor-pointer hover:text-orange py-2 text-lg font-bold">Add Restaurant</li>
+              </Link>
+            )}
 
-    {user && user.seller && <>
-      {user.restaurant_id ? (
-        <Link to="/admin/restaurant">
-          <li   onClick={toggleMobileMenu}  className="cursor-pointer hover:text-orange py-2 text-lg font-bold">Restaurant</li>
-        </Link>
-      ) : (
-        <Link to="/admin/add-resturent">
-          <li   onClick={toggleMobileMenu}  className="cursor-pointer hover:text-orange py-2 text-lg font-bold">Add Restaurant</li>
-        </Link>
-      )}
+            <Link to="/admin/menu"><li onClick={toggleMobileMenu} className="cursor-pointer hover:text-orange py-2 text-lg font-bold">Menu</li></Link>
+            <Link to="/admin/orders"><li onClick={toggleMobileMenu} className="cursor-pointer hover:text-orange py-2 text-lg font-bold">Orders</li></Link>
+          </>}
+        </div>
 
-      <Link to="/admin/menu"><li    onClick={toggleMobileMenu} className="cursor-pointer hover:text-orange py-2 text-lg font-bold">Menu</li></Link>
-      <Link to="/admin/orders"><li   onClick={toggleMobileMenu} className="cursor-pointer hover:text-orange py-2 text-lg font-bold">Orders</li></Link>
-    </>}
-  </div>
+        <div className="w-full flex items-center justify-center pb-5">
+          {user && loading ? <button
+            disabled
+            className="w-full bg-orange text-white py-2 px-4 rounded-lg hover:bg-hoverOrange flex items-center justify-center"
+          >
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
 
-  <div className="w-full flex items-center justify-center pb-5">
-    <button className="px-6 py-2 w-[80%] bg-orange rounded-lg hover:bg-hoverOrange">
-      Logout
-    </button>
-  </div>
-</ul>
+
+            Logging Out
+          </button> : !user ? <button onClick={() => {toggleMobileMenu(), navigate('/login') }} className="px-6 py-2 w-[80%] bg-orange rounded-lg hover:bg-hoverOrange">
+            Login
+          </button> : <button onClick={handelLogout} className="px-6 py-2 w-[80%] bg-orange rounded-lg hover:bg-hoverOrange">
+            Logout
+          </button>
+
+          }
+
+
+        </div>
+      </ul>
 
     </nav>
   );

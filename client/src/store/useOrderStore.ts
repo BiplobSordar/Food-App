@@ -12,6 +12,7 @@ export const useOrderStore = create<any>()(persist((set) => ({
     createOrder: async (orderData: any, addToast: (message: string, type: string) => void) => {
 
         try {
+            
             set({ loading: true });
             const response = await axios.post(`${API_ENDPOINT}/create/create_checkout_session`, orderData, {
                 headers: {

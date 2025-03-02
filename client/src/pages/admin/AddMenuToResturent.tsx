@@ -68,6 +68,12 @@ const AddMenuToResturent = () => {
             const result = await createMenu(formData, addToast)
             console.log(result,'thsi is the api call result')
             if (result) {
+                setInput({
+                    name: "",
+                    description: "",
+                    price: 0,
+                    image: undefined,
+                })
                 await getRestaurant()
                 setOpen(!open)
 

@@ -20,6 +20,7 @@ const CheckoutDialog = ({ open, setOpen }: any) => {
     address: "",
     city: "",
     country: "",
+    postal_coe:''
   });
 
   const changeEventHandler = (e: ChangeEvent<HTMLInputElement>) => {
@@ -27,12 +28,13 @@ const CheckoutDialog = ({ open, setOpen }: any) => {
   }
   useEffect(() => {
     setInput({
-      name: user.username || '',
-      email: user.email || '',
-      contact: user.contact || '',
-      address: user.address_line_1 + ',' + user.address_line_2 || '',
-      city: user.city || '',
-      country: user.country || ''
+      name: user?.username || '',
+      email: user?.email || '',
+      contact: user?.contact || '',
+      address: user?.address_line_1 + ',' + user?.address_line_2 || '',
+      city: user?.city || '',
+      country: user?.country || '',
+      postal_code:user?.postal_code||''
 
     })
   }, [user])
@@ -130,6 +132,18 @@ const CheckoutDialog = ({ open, setOpen }: any) => {
               value={input.address}
               onChange={changeEventHandler}
               className="w-full px-4 py-2 border border-gray-300 rounded-md"
+            />
+          </div>
+          <div>
+            <label htmlFor="postal_code" className="block text-sm font-semibold mb-1">Postal Code</label>
+            <input
+              type="text"
+              id="postal_code"
+              name="postal_code"
+              value={input.postal_code}
+              onChange={changeEventHandler}
+              disabled
+              className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100"
             />
           </div>
           <div>

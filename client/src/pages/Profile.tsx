@@ -162,7 +162,8 @@ const Profile = () => {
           }}
           className="px-4 py-2 m-5 bg-orange text-white rounded hover:bg-hoverOrange"
         >
-          {loading ? <Loader2 className="mr-2 w-4 h-4 animate-spin" /> : 'Upload Avatar'}
+          {loading ? <> <Loader2 className="mr-2 w-4 h-4 animate-spin" />
+            Please wait</> : 'Upload Avatar'}
 
         </button>}
         <div className='my-3 mx-5'>
